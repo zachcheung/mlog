@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"sync/atomic"
+
+	"github.com/mattn/go-isatty"
 )
 
 const (
@@ -51,7 +53,11 @@ func (l *Logger) DisableDebug() {
 // Arguments are handled in the manner of fmt.Print.
 func (l *Logger) Debug(v ...any) {
 	if atomic.LoadInt32(&l.isDebug) == 1 {
-		l.Print(fmt.Sprintf("[%s] ", colorize(gray, "DEBUG")), fmt.Sprint(v...))
+		levelText := "DEBUG"
+		if isatty.IsTerminal(os.Stdout.Fd()) {
+			levelText = colorize(gray, levelText)
+		}
+		l.Print(fmt.Sprintf("[%s] ", levelText), fmt.Sprint(v...))
 	}
 }
 
