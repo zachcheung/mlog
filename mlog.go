@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync/atomic"
 )
 
 const (
@@ -14,7 +15,7 @@ const (
 // A Logger is a standard `log.Logger` with `Debug` family functions.
 type Logger struct {
 	log.Logger
-	isDebug bool
+	isDebug int32 // atomic boolean
 }
 
 // New creates a new Logger and enables the debug log mode when found
@@ -23,10 +24,10 @@ type Logger struct {
 //   - true
 //   - 1
 func New() *Logger {
-	var isDebug bool
+	var isDebug int32
 	switch strings.ToLower(os.Getenv("DEBUG")) {
 	case "yes", "true", "1":
-		isDebug = true
+		isDebug = 1
 	}
 	return &Logger{
 		Logger:  *log.Default(),
@@ -38,18 +39,18 @@ var std = New()
 
 // EnableDebug enables the debug log mode and has higher priority than `DEBUG` environment variable.
 func (l *Logger) EnableDebug() {
-	l.isDebug = true
+	atomic.StoreInt32(&l.isDebug, 1)
 }
 
 // DisableDebug disables the debug log mode and has higher priority than `DEBUG` environment variable.
 func (l *Logger) DisableDebug() {
-	l.isDebug = false
+	atomic.StoreInt32(&l.isDebug, 0)
 }
 
 // Debug prints with `[DEBUG] ` prefix when in the debug mode.
 // Arguments are handled in the manner of fmt.Print.
 func (l *Logger) Debug(v ...any) {
-	if l.isDebug {
+	if atomic.LoadInt32(&l.isDebug) == 1 {
 		l.Print(fmt.Sprintf("[%s] ", colorize(gray, "DEBUG")), fmt.Sprint(v...))
 	}
 }
