@@ -104,3 +104,64 @@ func Debugf(format string, v ...any) {
 func Debugln(v ...any) {
 	std.Debugln(v...)
 }
+
+// These functions write to the standard logger and from go1.19.5:src/log/log.go.
+
+// Print calls Output to print to the standard logger.
+// Arguments are handled in the manner of fmt.Print.
+func Print(v ...any) {
+	std.Print(v...)
+}
+
+// Printf calls Output to print to the standard logger.
+// Arguments are handled in the manner of fmt.Printf.
+func Printf(format string, v ...any) {
+	std.Printf(format, v...)
+}
+
+// Println calls Output to print to the standard logger.
+// Arguments are handled in the manner of fmt.Println.
+func Println(v ...any) {
+	std.Println(v...)
+}
+
+// Fatal is equivalent to Print() followed by a call to os.Exit(1).
+func Fatal(v ...any) {
+	std.Fatal(v...)
+}
+
+// Fatalf is equivalent to Printf() followed by a call to os.Exit(1).
+func Fatalf(format string, v ...any) {
+	std.Fatalf(format, v...)
+}
+
+// Fatalln is equivalent to Println() followed by a call to os.Exit(1).
+func Fatalln(v ...any) {
+	std.Fatalln(v...)
+}
+
+// Panic is equivalent to Print() followed by a call to panic().
+func Panic(v ...any) {
+	std.Panic(v...)
+}
+
+// Panicf is equivalent to Printf() followed by a call to panic().
+func Panicf(format string, v ...any) {
+	std.Panicf(format, v...)
+}
+
+// Panicln is equivalent to Println() followed by a call to panic().
+func Panicln(v ...any) {
+	std.Panicln(v...)
+}
+
+// Output writes the output for a logging event. The string s contains
+// the text to print after the prefix specified by the flags of the
+// Logger. A newline is appended if the last character of s is not
+// already a newline. Calldepth is the count of the number of
+// frames to skip when computing the file name and line number
+// if Llongfile or Lshortfile is set; a value of 1 will print the details
+// for the caller of Output.
+func Output(calldepth int, s string) error {
+	return std.Output(calldepth+1, s) // +1 for this frame.
+}
